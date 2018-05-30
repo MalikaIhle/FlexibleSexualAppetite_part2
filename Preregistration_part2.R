@@ -37,11 +37,11 @@ Simulate_and_analyse <-function(){
   
   DelayTo <- rnorm(nF, mean = 15, sd = 7) 
   
-  Fsize <- sort(rnorm(nF,mean = 4, sd=1))# find real values!!
-  Fweight <- rnorm(nF,mean = 4, sd=1)# find real values!!
+  Fsize <- sort(rnorm(nF,mean = 1.475, sd=0.128))
+  Fweight <- rnorm(nF,mean = 229.0, sd=87.3)
   Fcondition <- resid(lm(Fweight~Fsize))
-  Msize <- sort(rnorm(nF*2,mean = 4, sd=1))
-  Mweight <- rnorm(nF*2,mean = 4, sd=1)
+  Msize <- sort(rnorm(nF*2,mean = 1.295, sd=0.065))
+  Mweight <- rnorm(nF*2,mean = 119.2, sd=33.6)
   Mcondition <- resid(lm(Mweight~Msize))
   
   MY_TABLE <- data.frame(FID, FTrt, DpdtYN, DelayTo, Fcondition, MID, MTrt, Msize, Mcondition, row.names = NULL)
@@ -51,6 +51,8 @@ Simulate_and_analyse <-function(){
 
 head(MY_TABLE)
 
+plot(MY_TABLE$Msize, MY_TABLE$Mcondition)
+cor.test(MY_TABLE$Msize, MY_TABLE$Mcondition)
 
 ## Trt Red Averse is the reference (intercept)
 
