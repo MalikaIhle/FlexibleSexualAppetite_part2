@@ -4,7 +4,7 @@
 #	 Start : 09/11/2018
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-table <- read.table("Reflectance_withoutSpikes.txt", header=TRUE)
+table <- read.table("RawData/Reflectance_withoutSpikes.txt", header=TRUE)
 head(table)
 
 library(ggplot2)
