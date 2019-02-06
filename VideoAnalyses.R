@@ -239,21 +239,52 @@ head(MY_TABLE_Videos)
 
 #~~~ ANALYSES
 
+
+{# JoVE
 ## For JoVE paper, need to compare the 14 unmanipulated males to males tested at the same time 
 ## (i.e. at the end of the season - which may be a specific subset of males)
 
 DatesTrailsUnmanipulated <- MY_TABLE_Videos$TrialDate[MY_TABLE_Videos$MTrt == "Unmanipulated"]
-summary((MY_TABLE_Videos[MY_TABLE_Videos$TrialDate > min(DatesTrailsUnmanipulated),]))
+summary((MY_TABLE_Videos[MY_TABLE_Videos$TrialDate > (min(DatesTrailsUnmanipulated)-1),]))
 summary(DatesTrailsUnmanipulated)
 Unmanip <- Basic_Trials$Ind_ID[Basic_Trials$GroupName == "Unmanipulated"]
 Unmanip[!Unmanip%in%MY_TABLE_Videos$MID[MY_TABLE_Videos$MTrt == "Unmanipulated"]]
+
+MY_TABLE_Videos_End <- MY_TABLE_Videos[MY_TABLE_Videos$TrialDate >= "2018-08-01" & MY_TABLE_Videos$TrialDate <= "2018-09-30",]
+MY_TABLE_Videos_End$MpaintedYN <- 1
+MY_TABLE_Videos_End$MpaintedYN[MY_TABLE_Videos_End$MTrt == "Unmanipulated"] <- 0
+
+table(MY_TABLE_Videos_End$MpaintedYN)
+
+modDelayLeaveDish_End <- lm(DelayLeaveDish~ MpaintedYN, data = MY_TABLE_Videos_End)
+summary(modDelayLeaveDish_End)#
+
+modDelayCourt_End <- lm(DelayFirstCourt ~ MpaintedYN, data = MY_TABLE_Videos_End)
+summary(modDelayCourt_End) # none of the painted categories are different from the unmanipulated. effect opposite expectation (unmanip take longer to court)
+
+modTotalCourtDur_End <- lm(TotalCourtDur~ MpaintedYN ,data = MY_TABLE_Videos_End)
+summary(modTotalCourtDur_End)#
+
+modNaiveTotalCourtDur_End <- lm(NaiveTotalCourtDur~ MpaintedYN, data = MY_TABLE_Videos_End)
+summary(modNaiveTotalCourtDur_End)#
+
+table(MY_TABLE_Videos_End$MTrt)
+
+MY_TABLE_Videos_End$MID # on 02/06/2019
+#[1] 18382 18433 18570 18457 18397 18459 18488 18364 18386 18398 18390 18438 18374 18421 18465 18555 18439 18569 18498 18447 18467 18571 18448 18448 18440 18583 18580
+#[28] 18582 18451 18373 18466 18424
+
+}
+
+
 
 
 {## Preregistered
 ### comparison delay to court for both type of male in the valid tests (not excluded because one of the three spiders died for other reason than cannibalism)
 
-modDelayCourt <- lm(DelayFirstCourt ~ relevel(MTrt,ref= "Unmanipulated") , data = MY_TABLE_Videos)
+modDelayCourt <- lm(DelayFirstCourt ~ relevel(MpaintedYN,ref= "Unmanipulated") , data = MY_TABLE_Videos)
 summary(modDelayCourt) # none of the painted categories are different from the unmanipulated. effect opposite expectation (unmanip take longer to court)
+
 }
 
 {## Exploratory
