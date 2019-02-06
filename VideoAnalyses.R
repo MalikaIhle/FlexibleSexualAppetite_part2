@@ -251,22 +251,27 @@ Unmanip <- Basic_Trials$Ind_ID[Basic_Trials$GroupName == "Unmanipulated"]
 Unmanip[!Unmanip%in%MY_TABLE_Videos$MID[MY_TABLE_Videos$MTrt == "Unmanipulated"]]
 
 MY_TABLE_Videos_End <- MY_TABLE_Videos[MY_TABLE_Videos$TrialDate >= "2018-08-01" & MY_TABLE_Videos$TrialDate <= "2018-09-30",]
-MY_TABLE_Videos_End$MpaintedYN <- 1
-MY_TABLE_Videos_End$MpaintedYN[MY_TABLE_Videos_End$MTrt == "Unmanipulated"] <- 0
+MY_TABLE_Videos_End$MpaintedYN <- "1"
+MY_TABLE_Videos_End$MpaintedYN[MY_TABLE_Videos_End$MTrt == "Unmanipulated"] <- "0"
 
 table(MY_TABLE_Videos_End$MpaintedYN)
+nrow(MY_TABLE_Videos_End)
 
 modDelayLeaveDish_End <- lm(DelayLeaveDish~ MpaintedYN, data = MY_TABLE_Videos_End)
 summary(modDelayLeaveDish_End)#
+summary(MY_TABLE_Videos_End$DelayLeaveDish) # they all excited the vials
 
 modDelayCourt_End <- lm(DelayFirstCourt ~ MpaintedYN, data = MY_TABLE_Videos_End)
-summary(modDelayCourt_End) # none of the painted categories are different from the unmanipulated. effect opposite expectation (unmanip take longer to court)
+summary(modDelayCourt_End) # 
+summary(MY_TABLE_Videos_End$DelayFirstCourt) # one (allgrey) was cannibalized before courting
 
 modTotalCourtDur_End <- lm(TotalCourtDur~ MpaintedYN ,data = MY_TABLE_Videos_End)
 summary(modTotalCourtDur_End)#
+summary(MY_TABLE_Videos_End$TotalCourtDur) # one (allgrey) was cannibalized before courting
 
 modNaiveTotalCourtDur_End <- lm(NaiveTotalCourtDur~ MpaintedYN, data = MY_TABLE_Videos_End)
 summary(modNaiveTotalCourtDur_End)#
+summary(MY_TABLE_Videos_End$NaiveTotalCourtDur)# one (allgrey) was cannibalized before courting
 
 table(MY_TABLE_Videos_End$MTrt)
 
