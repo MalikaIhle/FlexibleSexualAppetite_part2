@@ -52,7 +52,7 @@ nrow(Males)
 
 PaintedMalesMeasurements <- sqlQuery(conDB, "
 
-SELECT Mwidth.MID, Mwidth.MCarapaceWidth, MMass.Mass
+SELECT Mwidth.MID, Mwidth.MCarapaceWidth, MMass.MMass
 FROM (
 SELECT Basic_Individuals.Ind_ID AS MID, Morph_Measurements.CarapaceWidth AS MCarapaceWidth
                                      FROM (Basic_Individuals LEFT JOIN Basic_Trials ON Basic_Individuals.Ind_ID = Basic_Trials.Ind_ID) LEFT JOIN Morph_Measurements ON Basic_Trials.Ind_ID = Morph_Measurements.Ind_ID
@@ -60,7 +60,7 @@ SELECT Basic_Individuals.Ind_ID AS MID, Morph_Measurements.CarapaceWidth AS MCar
 ) AS Mwidth 
 
 LEFT JOIN (
-SELECT Basic_Trials.Ind_ID AS MID, Morph_Measurements.Mass
+SELECT Basic_Trials.Ind_ID AS MID, Morph_Measurements.Mass AS MMass
                                      FROM (Basic_Individuals LEFT JOIN Basic_Trials ON Basic_Individuals.Ind_ID = Basic_Trials.Ind_ID) LEFT JOIN Morph_Measurements ON Basic_Trials.Ind_ID = Morph_Measurements.Ind_ID
                                      WHERE (((Basic_Trials.GroupName)<>'Companion') AND ((Basic_Individuals.Sex)=1) AND ((Basic_Trials.Experiment)='VirginMateChoice') AND ((Morph_Measurements.Occasion)='VirginMateChoice'))
 ) AS MMass 
@@ -92,6 +92,8 @@ nrow(Fitness)
 
 
 Females <- merge(Females, Males[Males$MTrt != "Companion",], by="FID")
+Females <- merge(Females,PaintedMalesMeasurements, by="MID")
+
 nrow(Females)
 summary(Females)
 
