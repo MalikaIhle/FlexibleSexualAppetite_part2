@@ -150,7 +150,7 @@ summary(MY_TABLE)
 
 head(MY_TABLE)
 
-write.csv(MY_TABLE, file = "3_ExtractedData/MY_TABLE.csv", row.names = FALSE)
+# write.csv(MY_TABLE, file = "3_ExtractedData/MY_TABLE.csv", row.names = FALSE)
 
 
 

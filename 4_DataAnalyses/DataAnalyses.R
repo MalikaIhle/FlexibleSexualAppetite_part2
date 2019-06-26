@@ -16,11 +16,12 @@
 
 {# packages
 library(reshape2) # for function dcast for pivot table
+library(here)
 }
 
 
 {# load data
-MY_TABLE_all <- read.csv(file = "3_ExtractedData/MY_TABLE.csv", header=TRUE, sep=",") # with unmanipulated male tests
+MY_TABLE_all <- read.csv(file = paste(here(),"3_ExtractedData/MY_TABLE.csv", sep="/"), header=TRUE, sep=",") # with unmanipulated male tests
 summary(MY_TABLE_all)
 
 MY_TABLE <- MY_TABLE_all[MY_TABLE_all$MTrt != "Unmanipulated",]
@@ -30,7 +31,7 @@ summary(MY_TABLE)
 
 # decision of dependent variable as preregistered
 
-## is frequency of cannibalism over 48h between 15% and 85%?
+## is frequency of cannibalism within 48h between 15% and 85%?
 summary(MY_TABLE$CannibalizeYN)*100 # 36.2% yes
 
 ## is frequency of copulation during video between 17% and 83%?

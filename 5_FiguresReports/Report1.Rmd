@@ -1,0 +1,139 @@
+---
+title: "Report 1"
+author: "Malika Ihle"
+date: "June 26, 2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE, results="hide", message=FALSE, warnings=FALSE, include =FALSE}
+source('C:\\Users\\Malika\\Documents\\_Malika_Florida\\FlexibleSexualAppetite_part2\\4_DataAnalyses\\DataAnalyses.R')
+```
+
+
+## Trial data structure
+
+### Remarks
+
+#### missing values
+as per preregistration: if measurements were forgotten and cannot be done (e.g. weight not measure immediately before the test), the group average (e.g. among red averse females or among males with red face and red pedipalps)will be attributed to that individual FID 18401 has no weight (had a typo in the weight of both (before after) that could not be corrected)
+
+FID 18401 has no weight (had a typo in the weight of both (before after) that could not be corrected)
+MID 18228 (paired with FID 18072) and MID 18390 (paired with FID 18478) have no weight
+averages as described were given to them
+
+note: companion males were IDed but not weighted (only measured at maturity like all spiders)
+
+
+### dependent variables explanations
+**CopulateYN**: copulation that occur at any time, during the video, seen after on the shelf, or extrapolated from the fact that spiderlings emerged  
+**CannibaliseYN**: cannibalism that accour during the 2h video or the 46 hours after that (after which male and female were separated)  
+**CopDuringVideo**: copulation that occured within the 2h video  
+**EatDuringVideo**: cannibalism that occured during the 2h video  
+
+
+### decision of dependent variable as preregistered
+#### is frequency of cannibalism within 48h between 15% and 85%?
+```{r , echo=FALSE}
+mean(MY_TABLE$CannibalizeYN)*100 
+```
+#### is frequency of copulation during video between 17% and 83%?
+```{r , echo=FALSE}
+mean(MY_TABLE$CopDuringVideo)*100 
+```
+
+
+### as per preregistration, FTrt and MTrt were recoded as:  
+#### Female diet/training  
+**red accustomed/preference group** [code (relative to their preference for red) = +0.5]  
+**red averse group** [code (relative to their preference for red) = -0.5]  
+
+#### Male color manipulation   
+**AllRed**: (face and pedipalps painted red [code (amount of red body parts) = 2]   
+**RedGrey**: face painted red and pedipalps painted grey [code (amount of red body parts) = 1]   
+**AllGrey**: face and pedipalps painted grey [code (amount of red body parts) = 0]  
+
+### Covariables explanations
+**M and Fcondition** were calculated as resid(lm(Mass~CarapaceWidth))  
+**DelayToLay** is the difference between the lay date and the trial end date in days
+
+
+## Table structure
+
+### Remarks
+this table does not include the *20 trials with unmanipulated males*  
+Out of 221 females tested with a painted male,  
+221-54 = 167 females laid clutched, of which  
+221-74 = 147 led to spiderlings (for which the brood size is always known - but for 4 of them the emergence date is not known)  
+ 
+
+```{r, echo=FALSE }
+summary(MY_TABLE)
+```
+
+## Results Raw Data 
+
+Sample sizes of tests
+```{r, echo=FALSE }
+PivotSampleSizes
+```
+Number of tests (and percentages) where copulation was seen during the video
+(note that this may change sligthly as we havent finish watching them so we may have misidentified a copulation when watching live or missed one - both these events are rare)
+```{r, echo=FALSE }
+PivotCop
+
+PivotCopPerc
+```
+Number of tests where cannibalism occured during the 48h allocated
+```{r, echo=FALSE }
+PivotCannibalism
+
+PivotCannibalismpPerc
+```
+
+
+## Preregistered Analyses on Copulation and Cannibalism
+#### in preregistration
+#### Model 1: glm (CannibalismY/N ~ male treatment * female treatment + female body condition, family = binomial).
+#### Model 2: glm (CannibalismY/N ~ female treatment + female body condition, family = binomial
+#### Model 3: glm (CopulationY/N ~ male treatment * female treatment + male size + male body condition, family = binomial).
+#### Model 4: glm (CopulationY/N ~ female treatment + male size + male body condition, family = binomial).
+
+#### If Fcondition is significantly leading to more cannibalism this should be removed (Preregistered)
+FCondition was positively significant in the cannibalism nodel so it is silenced in the models below
+
+
+```{r, echo=TRUE}
+# Model 1
+modCannibalism <- glm (CannibalizeYN ~ FTrtCode* MTrtCode   
+                         #+ Fcondition
+                       , family = "binomial", data = MY_TABLE)
+
+summary(modCannibalism)
+
+
+# Model 2
+modCannibalism2 <- glm (CannibalizeYN ~ FTrtCode 
+                        #+  Fcondition
+                        , family = "binomial", data = MY_TABLE)
+
+summary(modCannibalism2)
+
+
+# Model 3
+modCop <- glm (CopDuringVideo ~ FTrtCode* MTrtCode + MCarapaceWidth + Mcondition
+               , family = "binomial", data = MY_TABLE)
+summary(modCop)
+
+
+# Model 4
+modCop2 <- glm (CopDuringVideo ~ FTrtCode + MCarapaceWidth + Mcondition
+                , family = "binomial", data = MY_TABLE)
+summary(modCop2)
+
+```
+
+

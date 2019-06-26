@@ -15,7 +15,8 @@ Script that extract data from databasesm merge info and calculate variables
 
 ## 3_ExtractedData
 
-csv files that can be shared with paperm these are the tables on which data analyses are performed
+csv files that can be shared along with the publication, these are the tables on which data analyses are performed
+MY_TABLE are the trial's data, it includes the test with unmanipulated males
 
 ## 4_DataAnalyses
 
