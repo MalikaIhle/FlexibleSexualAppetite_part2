@@ -26,6 +26,7 @@ VideoAnalyses (started to compare unmanipulated males to painted males for JoVE 
 ## 5_FiguresReports
 
 Plot Reflectance face (initially for JoVE paper but not used)  
+Report 1: trial data structure and preregistered analyses
 
 ## Extra
 Prereg (script sumitted with preregistration)  

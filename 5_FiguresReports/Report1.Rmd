@@ -103,7 +103,7 @@ PivotCannibalismpPerc
 #### Model 4: glm (CopulationY/N ~ female treatment + male size + male body condition, family = binomial).
 
 #### If Fcondition is significantly leading to more cannibalism this should be removed (Preregistered)
-FCondition was positively significant in the cannibalism nodel so it is silenced in the models below
+FCondition was positively significant in the cannibalism model so it is silenced in the models below
 
 
 ```{r, echo=TRUE}
