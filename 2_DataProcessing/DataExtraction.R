@@ -8,11 +8,10 @@
 
 {# Remarks
 # FID 18401 has no weight (had a typo in the weight of both (before after) that could not be corrected)
-# MID 18228 (with FID 18072) and MID 18390 (with FID 18478) have no weight
+# MID 18228 (paired with FID 18072) and MID 18390 (paired with FID 18478) have no weight
 # companion males were IDed but not weighted (only measured at maturity like all spiders)
   
-  
-  }
+}
 
 
 rm(list = ls(all = TRUE))
@@ -76,7 +75,7 @@ nrow(PaintedMalesMeasurements)
 
 Fitness <- sqlQuery(conDB, "
 
-SELECT Behav_Female.FID, Behav_Female.TrialDateEnd, Breed_Clutches.EmergenceDate, Breed_Clutches.BroodSize, [Breed_Clutches]![LayDate]-[Behav_Female]![TrialDateEnd] AS DelaytoLay, Breed_Clutches.Remarks
+SELECT Behav_Female.FID, Behav_Female.TrialDateEnd, Breed_Clutches.EmergenceDate, Breed_Clutches.BroodSize, [Breed_Clutches]![LayDate]-[Behav_Female]![TrialDateEnd] AS DelaytoLay, Breed_Clutches.Remarks AS BroodRemarks
 FROM Basic_Individuals LEFT JOIN (Behav_Female LEFT JOIN Breed_Clutches ON Behav_Female.FID = Breed_Clutches.FID) ON Basic_Individuals.Ind_ID = Behav_Female.FID
 WHERE (((Behav_Female.FID)>18000) AND ((Behav_Female.TestName)='Male') AND ((Breed_Clutches.ClutchNo) Is Null Or (Breed_Clutches.ClutchNo)=1))
 ORDER BY Behav_Female.FID
@@ -91,9 +90,67 @@ nrow(Fitness)
 }
 
 
-Females <- merge(Females, Males[Males$MTrt != "Companion",], by="FID")
-Females <- merge(Females,PaintedMalesMeasurements, by="MID")
+{# combine and calculate data into MY_TABLE
 
-nrow(Females)
-summary(Females)
+CompanionMales <- Males[Males$MTrt == "Companion", c("MID","FID")]
+colnames(CompanionMales) <- c('CompanionID', 'FID')
+
+PaintedMales <- merge(Males[Males$MTrt != "Companion",], PaintedMalesMeasurements, by="MID")
+
+MY_TABLE <- merge(Females, PaintedMales, by="FID")
+MY_TABLE <- merge(MY_TABLE, CompanionMales, by="FID")
+MY_TABLE <- merge(MY_TABLE, Fitness, by="FID")
+
+
+## calculate condition
+#### as per preregistration: if measurements were forgotten and cannot be done
+#### (e.g. weight not measure immediately before the test),
+#### the group average (e.g. among red averse females or
+#### among males with red face and red pedipalps)
+#### will be attributed to that individual
+
+MY_TABLE[is.na(MY_TABLE$FMass),]
+MY_TABLE$FMass[MY_TABLE$FID == 18401] <- mean(MY_TABLE$FMass[MY_TABLE$FTrt == 'RedAverse'], na.rm = TRUE)
+
+MY_TABLE[is.na(MY_TABLE$MMass),]
+MY_TABLE$MMass[MY_TABLE$MID == 18228] <- mean(MY_TABLE$MMass[MY_TABLE$MTrt == 'AllGrey'], na.rm = TRUE)
+MY_TABLE$MMass[MY_TABLE$MID == 18390] <- mean(MY_TABLE$MMass[MY_TABLE$MTrt == 'Unmanipulated'], na.rm = TRUE)
+
+
+MY_TABLE$Fcondition <- resid(lm(MY_TABLE$FMass~MY_TABLE$FCarapaceWidth))
+MY_TABLE$Mcondition <- resid(lm(MY_TABLE$MMass~MY_TABLE$MCarapaceWidth))
+
+
+## code FTrt and MTrt
+
+#### as per preregistration
+
+#### Female diet/training
+##### red accustomed/preference group [code (relative to their preference for red) = +0.5]
+##### red averse group [code (relative to their preference for red) = -0.5]
+
+#### Male color manipulation 
+##### AllRed: (face and pedipalps painted red [code (amount of red body parts) = 2] 
+##### RedGrey: face painted red and pedipalps painted grey [code (amount of red body parts) = 1] 
+##### AllGrey: face and pedipalps painted grey [code (amount of red body parts) = 0]
+                                                                                                                        
+
+MY_TABLE$FTrtCode[MY_TABLE$FTrt == "RedPreference"] <- 0.5
+MY_TABLE$FTrtCode[MY_TABLE$FTrt == "RedAverse"] <- -0.5
+MY_TABLE$MTrtCode[MY_TABLE$MTrt == "AllRed"] <- 2
+MY_TABLE$MTrtCode[MY_TABLE$MTrt == "RedGrey"] <- 1
+MY_TABLE$MTrtCode[MY_TABLE$MTrt == "AllGrey"] <- 0
+MY_TABLE$MTrtCode[MY_TABLE$MTrt == "Unmanipulated"] <- NA
+
+
+
+nrow(MY_TABLE)
+summary(MY_TABLE)
+}
+
+head(MY_TABLE)
+
+write.csv(MY_TABLE, file = "3_ExtractedData/MY_TABLE.csv", row.names = FALSE)
+
+
 
