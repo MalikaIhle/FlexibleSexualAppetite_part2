@@ -10,7 +10,7 @@
 # FID 18401 has no weight (had a typo in the weight of both (before after) that could not be corrected)
 # MID 18228 (paired with FID 18072) and MID 18390 (paired with FID 18478) have no weight
 # companion males were IDed but not weighted (only measured at maturity like all spiders)
-  
+# FID 18417 disappeared before getting the opportunity to lay eggs - she was a female tested with an unmanipulated male
 }
 
 
@@ -28,8 +28,8 @@ rm(list = ls(all = TRUE))
   
   Females <- sqlQuery(conDB, "
                       
-SELECT Basic_Individuals.Ind_ID AS FID, Basic_Trials.GroupName AS FTrt, Behav_Female.TrialDate, Behav_Female.CopulateYN, Behav_Female.CopDuringVideo, Behav_Female.CannibalizeYN, Behav_Female.EatDuringVideo, Behav_Female.CannibalismTime, Behav_Female.CannibalismDate, Behav_Female.Remarks AS TestRemarks, Morph_Measurements.Mass AS FMass, Morph_Measurements_1.CarapaceWidth AS FCarapaceWidth
-FROM (((Basic_Individuals LEFT JOIN Basic_Trials ON Basic_Individuals.Ind_ID = Basic_Trials.Ind_ID) LEFT JOIN Behav_Female ON Basic_Individuals.Ind_ID = Behav_Female.FID) LEFT JOIN Morph_Measurements ON Behav_Female.FID = Morph_Measurements.Ind_ID) LEFT JOIN Morph_Measurements AS Morph_Measurements_1 ON Behav_Female.FID = Morph_Measurements_1.Ind_ID
+SELECT Basic_Individuals.Ind_ID AS FID, Basic_Trials.GroupName AS FTrt, Basic_Trials.PeriodBeginDate, Behav_Female.TrialDate, Behav_Female.CopulateYN, Behav_Female.CopDuringVideo, Behav_Female.CannibalizeYN, Behav_Female.EatDuringVideo, Behav_Female.CannibalismTime, Behav_Female.CannibalismDate, Behav_Female.Remarks AS TestRemarks, Morph_Measurements.Mass AS FMass, Morph_Measurements_1.CarapaceWidth AS FCarapaceWidth
+FROM (Basic_Individuals LEFT JOIN Basic_Trials ON Basic_Individuals.Ind_ID = Basic_Trials.Ind_ID) LEFT JOIN ((Behav_Female LEFT JOIN Morph_Measurements ON Behav_Female.FID = Morph_Measurements.Ind_ID) LEFT JOIN Morph_Measurements AS Morph_Measurements_1 ON Behav_Female.FID = Morph_Measurements_1.Ind_ID) ON Basic_Individuals.Ind_ID = Behav_Female.FID
                       WHERE (((Basic_Individuals.Sex)=0) AND ((Basic_Trials.Experiment)='VirginMateChoice') AND ((Behav_Female.TestName)='Male') AND ((Morph_Measurements.Occasion)='VirginMateChoice') AND ((Morph_Measurements_1.Occasion)='maturity'));
                       
                       ")
@@ -82,10 +82,16 @@ ORDER BY Behav_Female.FID
 
 ")
 
+
+### Broodsize = 0 for those who didnt lay before december 2018 or laid infertile eggs (that did not lead to spiderlings)
+### brood size = NA for 17417 who disappeared before getting the chance to lay
+
+Fitness$BroodSize[is.na(Fitness$BroodSize)] <- 0
+Fitness$BroodSize[Fitness$FID == 18417] <- NA
+
 summary(Fitness)
 nrow(Fitness)
 
-  
   close(conDB)
 }
 
@@ -134,7 +140,6 @@ MY_TABLE$Mcondition <- resid(lm(MY_TABLE$MMass~MY_TABLE$MCarapaceWidth))
 ##### RedGrey: face painted red and pedipalps painted grey [code (amount of red body parts) = 1] 
 ##### AllGrey: face and pedipalps painted grey [code (amount of red body parts) = 0]
                                                                                                                         
-
 MY_TABLE$FTrtCode[MY_TABLE$FTrt == "RedPreference"] <- 0.5
 MY_TABLE$FTrtCode[MY_TABLE$FTrt == "RedAverse"] <- -0.5
 MY_TABLE$MTrtCode[MY_TABLE$MTrt == "AllRed"] <- 2
@@ -144,6 +149,9 @@ MY_TABLE$MTrtCode[MY_TABLE$MTrt == "Unmanipulated"] <- NA
 
 
 
+## Training duration
+MY_TABLE$TrainingDuration <- as.numeric(MY_TABLE$TrialDate - MY_TABLE$PeriodBeginDate)
+
 nrow(MY_TABLE)
 summary(MY_TABLE)
 }
@@ -152,5 +160,6 @@ head(MY_TABLE)
 
 # write.csv(MY_TABLE, file = "3_ExtractedData/MY_TABLE.csv", row.names = FALSE)
 
+# 20190627: add TrainingDuration, change brood size NA to 0 (but 18417 who disappeared before laying)
 
 
