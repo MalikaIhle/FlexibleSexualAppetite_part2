@@ -6,7 +6,7 @@ Platform: i386-w64-mingw32/i386 (32-bit)
 
 ## 1_RawData
 
-Databases (originals - but for videodatabase which is still a copy that needs to be updated)  
+Databases (these are the most uptodate originals)  
 crl files for reflectance 
 
 ## 2_DataProcessing
