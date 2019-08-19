@@ -1,7 +1,7 @@
 ---
-title: "Report 2"
+title: "Report 3"
 author: "Malika Ihle"
-date: "June 27, 2019"
+date: "August 19, 2019"
 output: pdf_document
 ---
 
@@ -29,7 +29,7 @@ note: companion males were IDed but not weighted (only measured at maturity like
 
 
 ### dependent variables explanations
-**CopulateYN**: copulation that occur at any time, during the video, seen after on the shelf, or extrapolated from the fact that spiderlings emerged  
+**CopulateYN**: copulation that occur at any time, during the video, or seen after on the shelf (but could be extrapolated from the fact that spiderlings emerged)  
 **CannibaliseYN**: cannibalism that accour during the 2h video or the 46 hours after that (after which male and female were separated)  
 **CopDuringVideo**: copulation that occured within the 2h video  
 **EatDuringVideo**: cannibalism that occured during the 2h video  
@@ -67,10 +67,13 @@ mean(MY_TABLE$CopDuringVideo)*100
 ### Sample sizes
 this table does not include the *20 trials with unmanipulated males*  
 Out of 221 females tested with a painted male,  
-221-54 = 167 females laid clutched, of which  
+221-54 = 167 females laid clutched 
    
+not visible here but looking directly in the DB:   
+during training: 2 disappeared, 1 died, 9 were killed after 3 months training without maturing  
+video missing: 254, 497, 233, 149 (unmaipulated male)
+after training: 1 disappeared before getting the opportunity to lay eggs FID 18417 who was tested with an unmanipulated male
 
-not visible here but looking directly in the DB: during training: 2 disappeared, one died,   9 were killed after 3 months training without maturing  ; after training: one disappeared before getting the opportunity to lay eggs FID 18417 who was tested with an unmanipulated male
  
 
 ```{r, echo=FALSE }
@@ -181,9 +184,11 @@ summary(modCop2Sub)
 ```{r, echo=FALSE }
 PivotSpiderling
 ```
-Not sure this would be the right model:
+first model explains whether females have spiderlings or not (if not: did not copulate or did nor lay or laid infertile eggs or laid non hatching eggs)  
+second model expalin number of spiderlings for those where at elast one spiderling emerged  
 ```{r, echo=TRUE}
-summary(lm(BroodSize ~ FTrtCode* MTrtCode  , data = MY_TABLE))
+summary(glm(BroodYN ~ FTrtCode* MTrtCode  , data = MY_TABLE, family = 'binomial'))
+summary(glmer(BroodSize ~ FTrtCode* MTrtCode + (1|FID) , data = MY_TABLE[MY_TABLE$BroodSize >0,], family = 'poisson'))
 ```
 
 ### Do females on the two diet treatments differ in final adult size or condition (in ways that might suggest that the presence of aversive prey reduces overall feeding rate)?
