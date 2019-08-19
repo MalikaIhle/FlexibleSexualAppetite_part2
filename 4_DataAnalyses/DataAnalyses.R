@@ -2,11 +2,11 @@
 #	 Malika IHLE      malika_ihle@hotmail.fr
 #	 Data analyses FlexibleSexualAppetite part 2
 #	 Start : 06/25/2019 
-#	 commit: data analyse - !!! video analyses not finished so CopDuringVideo could very shlightly change !!!
+#	 commit: data analyse
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 {# Remarks
-## CopulateYN reflects copulation that occur at any time, during the video, seen after on the shelf, or extrapolated from the fact that spiderlings emerged
+## CopulateYN reflects copulation that occur at any time, during the video, seen after on the shelf, or could be extrapolated from the fact that spiderlings emerged
 ## CannibaliseYN reflects cannibalism that accour during the 2h video or the 46 hours after that (after which male and female were separated)
 ## CopDuringVideo are the copulation that occured within the 2h video
 ## EatDuringVideo are the cannibalism that occured during the 2h video
@@ -35,7 +35,7 @@ head(MY_TABLE)
 summary(MY_TABLE$CannibalizeYN)*100 # 36.2% yes
 
 ## is frequency of copulation during video between 17% and 83%?
-summary(MY_TABLE$CopDuringVideo)*100 # 57.92% yes
+summary(MY_TABLE$CopDuringVideo)*100 # 58.37% yes
 }
 
 # preregistered analyses
@@ -142,7 +142,7 @@ modCopSub <- glm (CopDuringVideo ~ FTrtCode * MTrtCode + MCarapaceWidth + Mcondi
 par(mfrow=c(2,2))
 plot(modCopSub)
 
-summary(modCopSub) # trend, the more red the less copulations
+summary(modCopSub) # significatif the more red the less copulations
 
 
 # Model 4sub
@@ -157,19 +157,23 @@ summary(modCop2Sub)
 
 }
 
-## Is the number of spiderlings different for any of the categories Ftrt*MTrt?
+{## Is the number of spiderlings different for any of the categories Ftrt*MTrt?
 length(MY_TABLE$BroodSize[MY_TABLE$BroodSize == 0]) # 74
 
 PivotSpiderling <- dcast(MY_TABLE, FTrt~MTrt, value.var="BroodSize", sum)
 PivotSpiderling
 
 summary(lm(BroodSize ~ FTrtCode* MTrtCode  , data = MY_TABLE))
+}
 
-
-## Do females on the two diet treatments differ in final adult size or condition (in ways that might suggest that the presence of aversive prey reduces overall feeding rate)?
+{## Do females on the two diet treatments differ in final adult size or condition (in ways that might suggest that the presence of aversive prey reduces overall feeding rate)?
 
 shapiro.test(MY_TABLE$Fcondition)
 hist(MY_TABLE$Fcondition)
 wilcox.test(MY_TABLE$Fcondition[MY_TABLE$FTrt == "RedPreference"],
             MY_TABLE$Fcondition[MY_TABLE$FTrt == "RedAverse"])
+}
+
+
+
 

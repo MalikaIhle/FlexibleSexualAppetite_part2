@@ -2,7 +2,7 @@
 #	 Malika IHLE      malika_ihle@hotmail.fr
 #	 Data handling FlexibleSexualAppetite part 2
 #	 Start : 04/25/2019 - it's my bday!
-#	 last modif : 04/25/2019
+#	 last modif : 20190819
 #	 commit: data handling
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -161,5 +161,5 @@ head(MY_TABLE)
 # write.csv(MY_TABLE, file = "3_ExtractedData/MY_TABLE.csv", row.names = FALSE)
 
 # 20190627: add TrainingDuration, change brood size NA to 0 (but 18417 who disappeared before laying)
-
+# 20190819: finished video so CopYN during video an CopYN in general corrected
 

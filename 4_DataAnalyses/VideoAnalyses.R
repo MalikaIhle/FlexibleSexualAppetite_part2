@@ -2,25 +2,31 @@
 #	 Malika IHLE      malika_ihle@hotmail.fr
 #	 Video analyses FlexibleSexualAppetite part 2
 #	 Start : 31 Jan 2019
-#	 last modif : 
-#	 commit: get the descriptive comparison between unmanipulated and painted males for JoVE paper
-# !!!!! students need to correct courtships where FResp is empty
-# !!!!!!!! students need to correct wrong chronology in courtship time start and end !
-# # ! need to check for double copulations
+#	 last modif : 19 Aug 2019
+#	 commit: import all videos watched
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 {# Remarks
-  ## missing videos: FID = 111, 233, 149, 497
-  # 111, 233 and 149 are entirely missing
-  # while 497 has the first 1.5 hours corrupted and the last 30 min watched. 
-  # 497 live recording indicates that copulation occured in part 1.
-  # 497 video should be excluded as we did not watch after copulation for the other videos.
+  ## missing videos: FID = 233, 149, 497, 254
+      ### FID = 233 and FID = 149 are entirely missing
+      
+      ### FID = 497, videoID = 175
+      ### has the first 1.5 hours corrupted and the last 30 min watched. 
+      ### live recording indicates that copulation occured in part 1.
+      ### video should be excluded as we did not watch after copulation for the other videos.
   
+      ### FID = 254, videoID = 264
+      ### has the first 8 min watchedm then there is a missing part of about 20 min then the video starts again but was not watched
+      ### should be excluded
+
+    
   ## videos with 2 copulations
-  # FID = 553, videoID = 150
+      ### FID = 553, videoID = 150
+  
   
   ## Females with 2 copulations (one on video, one after video)
-  # FID 524
+      ### FID = 524, videoID = 82
+      ### FID = 538, videoID = 240
   
   
   ## Behav_Codes
@@ -35,7 +41,7 @@
   
   ## time end
   # at first we were watching the whole video, unless the male was getting cannibalized
-  # then we quickly stopped watching videos after copulation occured
+  # then (soon) we stopped watching videos after copulation occured
   # overall time stopped watching is either the time of attack if she consumed it, the time start of the copulation, 
   # or the time at which we stopped watching (after about 2 hours) if none of those two events occured
   
@@ -55,6 +61,12 @@ rm(list = ls(all = TRUE))
 #~~~ GET DATASET
 
 {# load data
+  
+  MY_TABLE_all <- read.csv(file = paste(here(),"3_ExtractedData/MY_TABLE.csv", sep="/"), header=TRUE, sep=",") # with 20 unmanipulated male tests
+  summary(MY_TABLE_all)
+  
+  MY_TABLE <- MY_TABLE_all[MY_TABLE_all$MTrt != "Unmanipulated",]
+  summary(MY_TABLE)
   
 conDB= odbcConnectAccess2007("RawData/VideoAnalyses_MaleTests_2018_BackEnd.accdb")
 sqlTables(conDB)
@@ -357,6 +369,22 @@ length(Behav_Male_Courtships$FemaleResponse[Behav_Male_Courtships$FemaleResponse
 }
 
 
+
+
+
+## Does copulation length explain number of spiderlings?
+
+### FID with spiderlings when CopulateYN = No
+nrow(MY_TABLE[MY_TABLE$BroodSize > 0 & MY_TABLE$CopulateYN == 0,]) # 20 females had spiderlings but were not seen copulated
+nrow(MY_TABLE[MY_TABLE$BroodSize > 0 ,]) # out of 147 females that had spiderlings
+
+### FID with CopulateYN = Yes and CopDuringVid = No
+nrow(MY_TABLE[MY_TABLE$CopDuringVideo == 0 & MY_TABLE$CopulateYN == 1,]) # 9 - where copulation was seen live after the video
+nrow(MY_TABLE) # out of 221 females observed
+
+### FID with CopulateYN = Yes and spiderlings = No
+nrow(MY_TABLE[MY_TABLE$BroodSize == 0 & MY_TABLE$CopulateYN == 1,]) # 11 females were seen copulated but had no spiderlings
+nrow(MY_TABLE[MY_TABLE$CopulateYN == 1,]) # out of 138 females that were seen copulating
 
 
 
