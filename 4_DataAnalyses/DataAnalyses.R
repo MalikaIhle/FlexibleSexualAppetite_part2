@@ -11,11 +11,25 @@
 ## CopDuringVideo are the copulation that occured within the 2h video
 ## EatDuringVideo are the cannibalism that occured during the 2h video
   
+## code FTrt and MTrt
+
+#### as per preregistration
+
+#### Female diet/training
+##### red accustomed/preference group [code (relative to their preference for red) = +0.5]
+##### red averse group [code (relative to their preference for red) = -0.5]
+
+#### Male color manipulation 
+##### AllRed: (face and pedipalps painted red [code (amount of red body parts) = 2] 
+##### RedGrey: face painted red and pedipalps painted grey [code (amount of red body parts) = 1] 
+##### AllGrey: face and pedipalps painted grey [code (amount of red body parts) = 0]
+  
 }
 
 {# packages
 library(reshape2) # for function dcast for pivot table
 library(here)
+library(lme4)
 }
 
 {# load data
@@ -142,7 +156,7 @@ modCopSub <- glm (CopDuringVideo ~ FTrtCode * MTrtCode + MCarapaceWidth + Mcondi
 par(mfrow=c(2,2))
 plot(modCopSub)
 
-summary(modCopSub) # significatif the more red the less copulations
+summary(modCopSub) # significatif the more red the less copulations 
 
 
 # Model 4sub
@@ -163,7 +177,22 @@ length(MY_TABLE$BroodSize[MY_TABLE$BroodSize == 0]) # 74
 PivotSpiderling <- dcast(MY_TABLE, FTrt~MTrt, value.var="BroodSize", sum)
 PivotSpiderling
 
-summary(lm(BroodSize ~ FTrtCode* MTrtCode  , data = MY_TABLE))
+hist(MY_TABLE$BroodSize) # zero inflated because those that dont lay, and those that do lay but have zero spiderlings )infertile or fertile but not hatching)
+hist(MY_TABLE$BroodSize[!is.na(MY_TABLE$DelaytoLay)]) # those that lay infertile eggs inflate zeros
+hist(MY_TABLE$BroodSize[MY_TABLE$BroodSize >0])
+MY_TABLE$BroodYN[MY_TABLE$BroodSize >0] <- 1
+MY_TABLE$BroodYN[MY_TABLE$BroodSize == 0] <- 0
+
+      # doesnt account for zero inflation
+      #summary(lm(BroodSize ~ FTrtCode* MTrtCode  , data = MY_TABLE))
+      #summary(glmer(BroodSize ~ FTrtCode* MTrtCode + (1|FID) , data = MY_TABLE[!is.na(MY_TABLE$DelaytoLay),], family = 'poisson'))
+
+
+summary(glm(BroodYN ~ FTrtCode* MTrtCode  , data = MY_TABLE, family = 'binomial'))
+summary(glmer(BroodSize ~ FTrtCode* MTrtCode + (1|FID) , data = MY_TABLE[MY_TABLE$BroodSize >0,], family = 'poisson'))
+
+
+
 }
 
 {## Do females on the two diet treatments differ in final adult size or condition (in ways that might suggest that the presence of aversive prey reduces overall feeding rate)?
