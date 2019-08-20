@@ -70,6 +70,8 @@ summary(MY_TABLE_Videos)
 
 MY_TABLE_Videos$TrialDate <- as.Date(MY_TABLE_Videos$TrialDate)
 MY_TABLE <- merge(MY_TABLE, MY_TABLE_Videos[,c('FID', 'CopDur')], by = 'FID', all.x = TRUE)
+MY_TABLE_Videos <- merge(MY_TABLE_Videos, MY_TABLE[,c('FID', 'Fcondition')], by = 'FID', all.x = TRUE)
+
 }
 
 head(MY_TABLE) # breeding and trial data including 20 unmanipulated males
@@ -146,6 +148,11 @@ summary(MY_TABLE_Videos$TotalWatch/60) # between 0.66 and 133.5 min watched (the
 MY_TABLE_Videos[MY_TABLE_Videos$CourtshipRate > 50 & !is.na(MY_TABLE_Videos$CourtshipRate),]
 MY_TABLE_Videos[MY_TABLE_Videos$TotalWatch/60 <1 ,]
 
+### link between cannibalism and copulation
+nrow(MY_TABLE_Videos[MY_TABLE_Videos$CannibalizeYN == 1 & MY_TABLE_Videos$CopulateYN == 1,])#at least 57 females copulated (seen) then cannibalised the male
+nrow(MY_TABLE_Videos[MY_TABLE_Videos$CannibalizeYN == 0 & MY_TABLE_Videos$CopulateYN == 1,])#93 female copulated without cannibalising the male within 2 days
+
+
 }
 
 
@@ -184,4 +191,51 @@ summary(lm(BroodSize~ CopDur , data=MY_TABLE[ MY_TABLE$CopDur > 0 ,])) # ***
 nrow(MY_TABLE[ !is.na(MY_TABLE$CopDur) & MY_TABLE$CopDur > 0 ,]) # 137
 
 }
+
+### is male courtship effort correlated to female body condition?
+{head(MY_TABLE_Videos)
+nrow(MY_TABLE_Videos[MY_TABLE_Videos$EatDuringVideo == 1,])#28
+nrow(MY_TABLE_Videos[MY_TABLE_Videos$EatDuringVideo == 0,])#209
+hist(MY_TABLE_Videos$TotalCourtDur)
+
+summary(glm(TotalCourtDur~ Fcondition
+            , offset = log(TotalWatch)
+            , family = 'poisson'
+            , data = MY_TABLE_Videos[MY_TABLE_Videos$EatDuringVideo == 0,])) # ***
+}
+
+### does male courtship effort predict copulation likelihood?
+{#### observation length vary greatly between videos, depending on when the copulation occured (the shorter TotalWatchm the earlier the copulation occured)
+#### one cannot just do CopulateYN~TotalCourtDur or even CopulateYN~CourtshipRate
+#### one need to use STAN as in https://ecoevorxiv.org/jq9n6/ with https://osf.io/kv3uc/ part S6.3 (although the dependent variable was a continuous trait not a binomial trait like here)
+
+summary(glm(TotalCourtDur~ CopulateYN
+            , offset = log(TotalWatch)
+            , family = 'poisson'
+            , data = MY_TABLE_Videos)) # ***
+
+summary(glm(CopulateYN~ CourtshipRate
+            , family = 'binomial'
+            , data = MY_TABLE_Videos)) # ***
+
+}
+
+### Are copulation and attacks negatively correlated (while controlling for male courtship effort)?
+{
+summary(glm(CopulateYN~ NbIntendedFAttacks
+    , family = 'binomial'
+    , data = MY_TABLE_Videos)) # *
+
+summary(glm(NbIntendedFAttacks~ CopulateYN
+            , offset = log(TotalWatch)
+            , family = 'poisson'
+            , data = MY_TABLE_Videos)) # ***
+
+summary(glm(NbIntendedFAttacks~ TotalCourtDur
+            #, offset = log(TotalWatch) # because both the dependent and the independent variable are measured within the same time for each video
+            , family = 'poisson'
+            , data = MY_TABLE_Videos)) # ***
+}
+
+
 
