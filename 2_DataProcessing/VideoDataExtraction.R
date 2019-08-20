@@ -152,7 +152,9 @@ rm(list = ls(all = TRUE))
   Behav_Video_MaleTest$TotalWatch <- as.numeric(difftime(Behav_Video_MaleTest$TimeEnd, Behav_Video_MaleTest$VideoTimeStart, units='secs'))
   Behav_Video_MaleTest$DelayLeaveDish[Behav_Video_MaleTest$DelayLeaveDish < 0] <- 0 # 5 NA = male never left dish (verified)
   Behav_Male_Courtships$CourtDuration <- as.numeric(difftime(Behav_Male_Courtships$CourtshipEnd,Behav_Male_Courtships$CourtshipStart, units = 'secs'))
- 
+  Behav_Male_Courtships$CopDuration <- as.numeric(difftime(Behav_Male_Courtships$TimeEndCop,Behav_Male_Courtships$TimeStartCop, units = 'secs'))
+  
+  
   {# data correction for chronology in Behav_Courtships
     ## chronology within a courtship already corrected within the DB, here I check logic chronology among courtships
     
@@ -245,9 +247,9 @@ head(Behav_Male_Courtships)
       group_by(VideoID) %>% 
       summarize(NBCourt = n(),
                 TotalCourtDur = sum(CourtDuration),
-                FirstCourt = min(CourtshipStart))
-    
-  }
+                FirstCourt = min(CourtshipStart),
+                CopDur = sum(CopDuration, na.rm = TRUE))
+    }
   
   {## keep only courtships before attacks from female
     Behav_Male_Courtships <- merge(x=Behav_Male_Courtships,y=as.data.frame(FAttacks[c('VideoID','FirstFAttack')]), by="VideoID", all.x=TRUE)
@@ -267,6 +269,7 @@ head(Behav_Male_Courtships)
   length(Behav_Male_Courtships$FemaleResponse[Behav_Male_Courtships$FemaleResponse == -1])/nrow(Behav_Male_Courtships)*100 #5.6%
   
   
+  
 } 
 
 FAttacks
@@ -283,7 +286,7 @@ NaiveCourts
   MY_TABLE_Videos <- merge (x=MY_TABLE_Videos, y= FAttacks[,c('FirstFAttack', 'NbFAttacks', 'VideoID')],by='VideoID', all.x=TRUE)
   MY_TABLE_Videos <- merge (x=MY_TABLE_Videos, y= TotalIntendedFAttacks[,c('NbIntendedFAttacks', 'VideoID')],by='VideoID', all.x=TRUE)
   MY_TABLE_Videos <- merge (x=MY_TABLE_Videos, y= Cannibalism[,c('ConsumTime', 'VideoID')],by='VideoID', all.x=TRUE)
-  MY_TABLE_Videos <- merge (x=MY_TABLE_Videos, y= AllCourts[,c('NBCourt','TotalCourtDur', 'FirstCourt','VideoID')],by='VideoID', all.x=TRUE)
+  MY_TABLE_Videos <- merge (x=MY_TABLE_Videos, y= AllCourts[,c('NBCourt','TotalCourtDur', 'FirstCourt','CopDur', 'VideoID')],by='VideoID', all.x=TRUE)
   MY_TABLE_Videos <- merge (x=MY_TABLE_Videos, y= NaiveCourts[,c('NaiveNBCourt','NaiveTotalCourtDur', 'NaiveFirstCourt','VideoID')],by='VideoID', all.x=TRUE)
   
   summary(MY_TABLE_Videos) # 5 never left dish, 4 were eaten prior to ever court, 16 were attacked prior to ever court
@@ -325,5 +328,5 @@ NaiveCourts
 head(MY_TABLE_Videos)
 
 # write.csv(MY_TABLE_Videos, file = "3_ExtractedData/MY_TABLE_Videos.csv", row.names = FALSE)
-# 20190820 first
+# 20190820 first, add CopDur
 
