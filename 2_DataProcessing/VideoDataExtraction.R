@@ -262,6 +262,11 @@ head(Behav_Male_Courtships)
     
   }
   
+  ### Nb of courtships that lead to female attack
+  summary(Behav_Male_Courtships$FemaleResponse)
+  length(Behav_Male_Courtships$FemaleResponse[Behav_Male_Courtships$FemaleResponse == -1])/nrow(Behav_Male_Courtships)*100 #5.6%
+  
+  
 } 
 
 FAttacks
