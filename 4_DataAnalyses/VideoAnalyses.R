@@ -69,7 +69,7 @@ MY_TABLE_Videos <- read.csv(file = paste(here(),"3_ExtractedData/MY_TABLE_Videos
 summary(MY_TABLE_Videos)
 
 MY_TABLE_Videos$TrialDate <- as.Date(MY_TABLE_Videos$TrialDate)
-
+MY_TABLE <- merge(MY_TABLE, MY_TABLE_Videos[,c('FID', 'CopDur')], by = 'FID', all.x = TRUE)
 }
 
 head(MY_TABLE) # breeding and trial data including 20 unmanipulated males
@@ -167,6 +167,21 @@ nrow(MY_TABLE) # out of 221 females observed
 ### FID with CopulateYN = Yes and spiderlings = No
 nrow(MY_TABLE[MY_TABLE$BroodSize == 0 & MY_TABLE$CopulateYN == 1,]) # 11 females were seen copulated but had no spiderlings
 nrow(MY_TABLE[MY_TABLE$CopulateYN == 1,]) # out of 138 females that were seen copulating
+
+### correlation between copulation duration (when observed) and number of spiderlings
+head(MY_TABLE)
+summary(MY_TABLE$CopDur) # 4 videos missing + 4 males recorded but who never courted as were eaten before
+summary(MY_TABLE_Videos$CopDur) # 4 males eaten before ever courting
+summary(MY_TABLE$BroodSize)
+
+summary(MY_TABLE$CopDur[ MY_TABLE$CopDur > 0])
+hist(MY_TABLE$CopDur[ MY_TABLE$CopDur > 0])
+summary(MY_TABLE$BroodSize[ MY_TABLE$CopDur > 0])
+hist(MY_TABLE$BroodSize[ MY_TABLE$CopDur > 0])
+
+plot(BroodSize~ CopDur, data=MY_TABLE[MY_TABLE$CopDur > 0 ,])
+summary(lm(BroodSize~ CopDur , data=MY_TABLE[ MY_TABLE$CopDur > 0 ,])) # ***
+nrow(MY_TABLE[ !is.na(MY_TABLE$CopDur) & MY_TABLE$CopDur > 0 ,]) # 137
 
 }
 
