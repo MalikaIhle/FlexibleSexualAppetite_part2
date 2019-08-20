@@ -68,6 +68,8 @@ summary(MY_TABLE)
 MY_TABLE_Videos <- read.csv(file = paste(here(),"3_ExtractedData/MY_TABLE_Videos.csv", sep="/"), header=TRUE, sep=",") # with 19 unmanipulated male tests videos
 summary(MY_TABLE_Videos)
 
+MY_TABLE_Videos$TrialDate <- as.Date(MY_TABLE_Videos$TrialDate)
+
 }
 
 head(MY_TABLE) # breeding and trial data including 20 unmanipulated males
@@ -139,14 +141,10 @@ summary(MY_TABLE_Videos$DelayFirstCourt)/60 # 7.57 min
 
 ### average duration courting (out of duration watched)
 MY_TABLE_Videos$CourtshipRate <- (MY_TABLE_Videos$TotalCourtDur/60)/(MY_TABLE_Videos$TotalWatch/60/60)
-summary(MY_TABLE_Videos$CourtshipRate) # 29.5 min of coursthip per hour (!! videos may have stopped after 12 min if copulation occured so max isnt really 59 min per hour !!)
-summary(MY_TABLE_Videos$TotalWatch/60) # between 0.6 and 133.5 min watched (the lowest being when attacked immediatly, then the econd lozest are when copulate very quickly)
+summary(MY_TABLE_Videos$CourtshipRate) # 29.1 min of coursthip per hour (!! videos may have stopped after 12 min if copulation occured so max isnt really 59 min per hour !!)
+summary(MY_TABLE_Videos$TotalWatch/60) # between 0.66 and 133.5 min watched (the lowest being when attacked immediatly, then the econd lozest are when copulate very quickly)
 MY_TABLE_Videos[MY_TABLE_Videos$CourtshipRate > 50 & !is.na(MY_TABLE_Videos$CourtshipRate),]
 MY_TABLE_Videos[MY_TABLE_Videos$TotalWatch/60 <1 ,]
-
-### Nb of courtships that lead to female attack
-summary(Behav_Male_Courtships$FemaleResponse)
-length(Behav_Male_Courtships$FemaleResponse[Behav_Male_Courtships$FemaleResponse == -1])/nrow(Behav_Male_Courtships)*100 #5.6%
 
 }
 
