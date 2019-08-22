@@ -177,7 +177,7 @@ length(MY_TABLE$BroodSize[MY_TABLE$BroodSize == 0]) # 74
 PivotSpiderling <- dcast(MY_TABLE, FTrt~MTrt, value.var="BroodSize", sum)
 PivotSpiderling
 
-hist(MY_TABLE$BroodSize) # zero inflated because those that dont lay, and those that do lay but have zero spiderlings )infertile or fertile but not hatching)
+hist(MY_TABLE$BroodSize) # zero inflated because those that dont lay, and those that do lay but have zero spiderlings) infertile or fertile but not hatching)
 hist(MY_TABLE$BroodSize[!is.na(MY_TABLE$DelaytoLay)]) # those that lay infertile eggs inflate zeros
 hist(MY_TABLE$BroodSize[MY_TABLE$BroodSize >0])
 MY_TABLE$BroodYN[MY_TABLE$BroodSize >0] <- 1
