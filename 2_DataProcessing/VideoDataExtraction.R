@@ -233,6 +233,11 @@ head(Behav_Male_Courtships)
       group_by(VideoID) %>% 
       summarize(NbIntendedFAttacks = n())  
     
+    ### all instances of female aggression (even missed attacks) without the fatal attack
+    TotalIntendedFAttacksNotFatal <- Behav_Female_Attacks[Behav_Female_Attacks$AttackType == 1 | Behav_Female_Attacks$AttackType == 2,] %>% 
+      group_by(VideoID) %>% 
+      summarize(NbIntendedFAttacksNotFatal = n())     
+    
     ### consum male during video
     Cannibalism <- Behav_Female_Attacks[Behav_Female_Attacks$AttackType == 3,c('VideoID', 'AttackTime')]
     colnames(Cannibalism) <- c('VideoID','ConsumTime')
@@ -285,6 +290,7 @@ NaiveCourts
   
   MY_TABLE_Videos <- merge (x=MY_TABLE_Videos, y= FAttacks[,c('FirstFAttack', 'NbFAttacks', 'VideoID')],by='VideoID', all.x=TRUE)
   MY_TABLE_Videos <- merge (x=MY_TABLE_Videos, y= TotalIntendedFAttacks[,c('NbIntendedFAttacks', 'VideoID')],by='VideoID', all.x=TRUE)
+  MY_TABLE_Videos <- merge (x=MY_TABLE_Videos, y= TotalIntendedFAttacksNotFatal[,c('NbIntendedFAttacksNotFatal', 'VideoID')],by='VideoID', all.x=TRUE)
   MY_TABLE_Videos <- merge (x=MY_TABLE_Videos, y= Cannibalism[,c('ConsumTime', 'VideoID')],by='VideoID', all.x=TRUE)
   MY_TABLE_Videos <- merge (x=MY_TABLE_Videos, y= AllCourts[,c('NBCourt','TotalCourtDur', 'FirstCourt','CopDur', 'VideoID')],by='VideoID', all.x=TRUE)
   MY_TABLE_Videos <- merge (x=MY_TABLE_Videos, y= NaiveCourts[,c('NaiveNBCourt','NaiveTotalCourtDur', 'NaiveFirstCourt','VideoID')],by='VideoID', all.x=TRUE)
@@ -292,6 +298,7 @@ NaiveCourts
   summary(MY_TABLE_Videos) # 5 never left dish, 4 were eaten prior to ever court, 16 were attacked prior to ever court
   MY_TABLE_Videos$NbFAttacks[is.na(MY_TABLE_Videos$NbFAttacks)] <- 0
   MY_TABLE_Videos$NbIntendedFAttacks[is.na(MY_TABLE_Videos$NbIntendedFAttacks)] <- 0
+  MY_TABLE_Videos$NbIntendedFAttacksNotFatal[is.na(MY_TABLE_Videos$NbIntendedFAttacksNotFatal)] <- 0
   
   
   MY_TABLE_Videos <- merge (x = MY_TABLE_Videos, y=  Behav_Female[Behav_Female$TestName == 'Male' & Behav_Female$FID > 18000
@@ -329,4 +336,4 @@ head(MY_TABLE_Videos)
 
 # write.csv(MY_TABLE_Videos, file = "3_ExtractedData/MY_TABLE_Videos.csv", row.names = FALSE)
 # 20190820 first, add CopDur
-
+# 20190822 add NbIntendedFAttacksNotFatal (to be able to correlate attacks with cannibalism excluding the fatal attack)
