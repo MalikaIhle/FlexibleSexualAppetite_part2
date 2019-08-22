@@ -1,0 +1,291 @@
+---
+title: "Report 3"
+author: "Malika Ihle"
+date: "August 22, 2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE, results="hide", message=FALSE, warnings=FALSE, include =FALSE}
+source('C:\\Users\\Malika\\Documents\\_Malika_Florida\\FlexibleSexualAppetite_part2\\4_DataAnalyses\\DataAnalyses.R')
+#source('C:\\Users\\Malika\\Documents\\_Malika_Florida\\FlexibleSexualAppetite_part2\\4_DataAnalyses\\VideoAnalyses.R')
+```
+
+
+## Data description
+
+### missing values
+as per preregistration: if measurements were forgotten and cannot be done (e.g. weight not measure immediately before the test), the group average (e.g. among red averse females or among males with red face and red pedipalps)will be attributed to that individual FID 18401 has no weight (had a typo in the weight of both (before after) that could not be corrected)
+
+FID 18401 has no weight (had a typo in the weight of both (before after) that could not be corrected)
+MID 18228 (paired with FID 18072) and MID 18390 (paired with FID 18478) have no weight
+averages as described were given to them
+
+note: companion males were IDed but not weighted (only measured at maturity like all spiders)
+
+
+### dependent variables explanations
+**CopulateYN**: copulation that occur at any time, during the video, or seen after on the shelf (but could also be extrapolated from the fact that spiderlings emerged)  
+**CannibaliseYN**: cannibalism that accour during the 2h video or the 46 hours after that (after which male and female were separated)  
+**CopDuringVideo**: copulation that occured within the 2h video  
+**EatDuringVideo**: cannibalism that occured during the 2h video  
+
+
+### decision of dependent variable as preregistered
+#### is frequency of cannibalism within 48h between 15% and 85%?
+```{r , echo=FALSE}
+mean(MY_TABLE$CannibalizeYN)*100 
+```
+#### is frequency of copulation during video between 17% and 83%?
+```{r , echo=FALSE}
+mean(MY_TABLE$CopDuringVideo)*100 
+```
+
+
+### as per preregistration, FTrt and MTrt were recoded as:  
+#### Female diet/training  
+**red accustomed/preference group** [code (relative to their preference for red) = +0.5]  
+**red averse group** [code (relative to their preference for red) = -0.5]  
+
+#### Male color manipulation   
+**AllRed**: (face and pedipalps painted red [code (amount of red body parts) = 2]   
+**RedGrey**: face painted red and pedipalps painted grey [code (amount of red body parts) = 1]   
+**AllGrey**: face and pedipalps painted grey [code (amount of red body parts) = 0]  
+
+### Covariables or other dependent variables explanations
+**M and Fcondition** were calculated as resid(lm(Mass~CarapaceWidth))  
+**DelayToLay** is the difference between the lay date and the trial end date in days
+**Brood size**: Number of spiderlings emerging from the first clutch following the test (females were allowed to start laying until 22 December 2018)  
+**TrainingDuration**: differnece in days between Trial Date and Period Begin Date (which is the start date of training)
+
+### Video: time during which we record courtships and attacks
+
+at first we were watching the whole video (2h), unless the male was getting cannibalized  
+then (soonm maybe after ~30 videos?) we stopped watching videos right after copulation occured (only checking if the male got cannibalized afterwards)    
+overall, time stopped watching is either the time of attack if she consumed it, the time start of the copulation,   
+or the time at which we stopped watching (after about 2 hours) if none of those two events occured  
+
+### Sample sizes
+this table does not include the *20 trials with unmanipulated males*  
+Out of 221 females tested with a painted male,  
+221-54 = 167 females laid clutched 
+   
+not visible here but looking directly in the DB:   
+during training: 2 disappeared, 1 died, 9 were killed after 3 months training without maturing  
+video missing: 254, 497, and 233 with painted males, 149 with unmanipulated male
+after training: 1 disappeared before getting the opportunity to lay eggs FID 18417 who was tested with an unmanipulated male
+
+## Results Raw Data 
+
+Sample sizes of tests  
+as preregistered: We aim at the largest possible sample size, with at least 30 females per FTrt*MTrt  
+
+```{r, echo=FALSE }
+PivotSampleSizes
+```
+
+Number of tests (and percentages) where copulation was seen during the video  
+```{r, echo=FALSE }
+PivotCop
+
+PivotCopPerc
+```
+
+Number of tests where cannibalism occured during the 48h allocated  
+```{r, echo=FALSE }
+PivotCannibalism
+
+PivotCannibalismpPerc
+```
+
+
+## Preregistered Analyses on Copulation and Cannibalism
+in preregistration
+Model 1: glm (CannibalismY/N ~ male treatment * female treatment + female body condition, family = binomial).
+Model 2: glm (CannibalismY/N ~ female treatment + female body condition, family = binomial
+Model 3: glm (CopulationY/N ~ male treatment * female treatment + male size + male body condition, family = binomial).
+Model 4: glm (CopulationY/N ~ female treatment + male size + male body condition, family = binomial).
+
+We also preregistered that if Fcondition is significantly leading to more cannibalism this should be removed
+FCondition was positively significant in the cannibalism model so it is silenced in the models below
+
+
+```{r, echo=TRUE}
+# Model 1
+modCannibalism <- glm (CannibalizeYN ~ FTrtCode* MTrtCode   
+                         #+ Fcondition
+                       , family = "binomial", data = MY_TABLE)
+
+summary(modCannibalism)
+
+
+# Model 2
+modCannibalism2 <- glm (CannibalizeYN ~ FTrtCode 
+                        #+  Fcondition
+                        , family = "binomial", data = MY_TABLE[MY_TABLE$MTrt == "AllRed",])
+
+summary(modCannibalism2)
+
+
+# Model 3
+modCop <- glm (CopDuringVideo ~ FTrtCode* MTrtCode + MCarapaceWidth + Mcondition
+               , family = "binomial", data = MY_TABLE)
+summary(modCop)
+
+
+# Model 4
+modCop2 <- glm (CopDuringVideo ~ FTrtCode + MCarapaceWidth + Mcondition
+                , family = "binomial", data = MY_TABLE[MY_TABLE$MTrt == "AllRed",])
+summary(modCop2)
+
+```
+
+
+## Exploratory analyses
+### Are effect sizes stronger when subsetting to females that had more than 2 weeks training (which may increase the strength of learning the color biases)?
+
+```{r, echo=TRUE}
+# Model 1sub
+modCannibalismSub <- glm (CannibalizeYN ~ FTrtCode* MTrtCode   
+                       #+ Fcondition
+                       , family = "binomial", data = MY_TABLE[MY_TABLE$TrainingDuration > 14,])
+summary(modCannibalismSub)
+
+
+# Model 2sub
+modCannibalism2Sub <- glm (CannibalizeYN ~ FTrtCode 
+                        #+  Fcondition
+                        , family = "binomial"
+                        , data = MY_TABLE[MY_TABLE$MTrt == "AllRed" & MY_TABLE$TrainingDuration > 14,])
+summary(modCannibalism2Sub)
+
+
+# Model 3sub
+
+modCopSub <- glm (CopDuringVideo ~ FTrtCode * MTrtCode + MCarapaceWidth + Mcondition
+               , family = "binomial", data = MY_TABLE[MY_TABLE$TrainingDuration > 14,])
+summary(modCopSub) # trend, the more red the less copulations
+
+
+# Model 4sub
+
+modCop2Sub <- glm (CopDuringVideo ~ FTrtCode + MCarapaceWidth + Mcondition
+                , family = "binomial"
+                , data = MY_TABLE[MY_TABLE$MTrt == "AllRed" & MY_TABLE$TrainingDuration > 14,])
+summary(modCop2Sub)
+```
+
+
+### Do females on the two diet treatments differ in final adult size or condition (in ways that might suggest that the presence of aversive prey reduces overall feeding rate)?
+
+```{r, echo=TRUE}
+wilcox.test(MY_TABLE$Fcondition[MY_TABLE$FTrt == "RedPreference"],
+            MY_TABLE$Fcondition[MY_TABLE$FTrt == "RedAverse"])
+```
+
+
+### Is the number of spiderlings different for any of the categories Ftrt*MTrt?
+
+74 females had a brood size of 0
+221-74 = 147 had spiderlings
+
+20 females had spiderlings but were not seen copulated out of 147 females with spiderlings  
+11 females were seen copulated but had no spiderlings out of 138 females that were seen copulating (9 of which were seen after the two hours videos, by chance)  
+
+```{r, echo=FALSE }
+PivotSpiderling
+```
+
+because this is a wero inflated poisson distribution, and that zeros comes from a different phenomenon, I split this analysis in two:
+first model explains whether females have spiderlings or not (if not: did not copulate, or did nor lay, or laid infertile eggs, or laid non hatching eggs)   
+second model explains the number of spiderlings for those where at least one spiderling emerged  
+
+```{r, echo=TRUE}
+summary(glm(BroodYN ~ FTrtCode* MTrtCode  
+            , data = MY_TABLE, family = 'binomial'))
+summary(glmer(BroodSize ~ FTrtCode* MTrtCode + (1|FID) 
+              , data = MY_TABLE[MY_TABLE$BroodSize >0,], family = 'poisson'))
+```
+
+
+
+```{r, echo=FALSE, results="hide", message=FALSE, warnings=FALSE, include =FALSE}
+source('C:\\Users\\Malika\\Documents\\_Malika_Florida\\FlexibleSexualAppetite_part2\\4_DataAnalyses\\VideoAnalyses.R')
+```
+
+
+### Does copulation duration (when observed (i.e. excluding zeros here)) explain number of spiderlings?
+
+```{r, echo=TRUE}
+summary(lm(BroodSize~ CopDur , data=MY_TABLE[ MY_TABLE$CopDur > 0 ,]))
+```
+
+### is male courtship effort correlated to female body condition?
+observation length vary greatly between videos, depending on when the copulation occured (the shorter TotalWatch, the earlier the copulation occured)  
+here I use the total sum of courtship seconds with an offset of the total duration during which courtships were recorded, in a Poisson model  
+
+```{r, echo=TRUE}
+summary(glm(TotalCourtDur~ Fcondition
+            , offset = log(TotalWatch)
+            , family = 'poisson'
+            , data = MY_TABLE_Videos)) 
+```
+
+
+### does male courtship effort predict copulation likelihood?
+again, observation length vary greatly between videos, depending on when the copulation or cannibalism occured
+I think one cannot just do CopulateYN~TotalCourtDur or even CopulateYN~CourtshipRate  
+one would probably need to use STAN as in https://ecoevorxiv.org/jq9n6/ with https://osf.io/kv3uc/ part S6.3 (although the dependent variable in the example provided was a continuous trait not a binomial trait like here) or maybe give weights (inversely proportinal to the variance) for each rate?  
+
+!!this is probably not a correct model!!  
+```{r, echo=TRUE}
+summary(glm(CopulateYN~ CourtshipRate
+            , family = 'binomial'
+            , data = MY_TABLE_Videos))
+```
+
+
+### Are copulation and attacks negatively correlated (while controlling for male courtship effort)?
+Similar problem as above but even more complex as two variables are depending on the duration of observation  
+Here, I use attack rate and courtship rate (which doesn't weight for the fact that some were watch 1 min while some were watched 2 hours)  
+
+!!this is not a correct model!!
+```{r, echo=TRUE}
+summary(glm(CopulateYN~ IntendedFAttacksNotFatalRate + CourtshipRate
+            , family = 'binomial'
+            , data = MY_TABLE_Videos))
+```
+
+While here I use whether or not they attacked the male at least one (see distribution of the Nb of attacks below). 
+I am suprised the results are so different.  
+!!this is not a correct model!!
+```{r, echo=TRUE}
+summary(glm(CopulateYN~ IntendedFAttacksNotFatalYN + CourtshipRate
+            , family = 'binomial'
+            , data = MY_TABLE_Videos)) 
+```
+
+### Is cannibalism predicted by attacks ?
+similar problem as above, here I use attack rate as a predictor  
+
+!!this is not a correct model!!  
+```{r, echo=TRUE}
+summary(glm(CannibalizeYN~ IntendedFAttacksNotFatalRate
+            , family = 'binomial'
+            , data = MY_TABLE_Videos))
+```
+
+besdides, the distribution of Nb of attacks should probably be assimilated to a binomial one  
+```{r, echo=TRUE}
+summary(MY_TABLE_Videos$NbIntendedFAttacksNotFatal)
+```
+
+so maybe this model is cleaner?  
+```{r, echo=TRUE}
+summary(glm(CannibalizeYN~ IntendedFAttacksNotFatalYN
+            , family = 'binomial'
+            , data = MY_TABLE_Videos))
+```
