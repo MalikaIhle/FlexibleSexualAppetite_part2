@@ -48,7 +48,7 @@
   
 }
 
-rm(list = ls(all = TRUE))
+#rm(list = ls(all = TRUE))
 
 {# packages
   library(lme4)
@@ -201,11 +201,11 @@ hist(MY_TABLE_Videos$TotalCourtDur)
 summary(glm(TotalCourtDur~ Fcondition
             , offset = log(TotalWatch)
             , family = 'poisson'
-            , data = MY_TABLE_Videos[MY_TABLE_Videos$EatDuringVideo == 0,])) # ***
+            , data = MY_TABLE_Videos)) # ***
 }
 
 ### does male courtship effort predict copulation likelihood?
-{#### observation length vary greatly between videos, depending on when the copulation occured (the shorter TotalWatchm the earlier the copulation occured)
+{#### observation length vary greatly between videos, depending on when the copulation occured (the shorter TotalWatch, the earlier the copulation occured)
 #### one cannot just do CopulateYN~TotalCourtDur or even CopulateYN~CourtshipRate
 #### one need to use STAN as in https://ecoevorxiv.org/jq9n6/ with https://osf.io/kv3uc/ part S6.3 (although the dependent variable was a continuous trait not a binomial trait like here)
 
@@ -222,20 +222,48 @@ summary(glm(CopulateYN~ CourtshipRate
 
 ### Are copulation and attacks negatively correlated (while controlling for male courtship effort)?
 {
-summary(glm(CopulateYN~ NbIntendedFAttacks
+  MY_TABLE_Videos$IntendedFAttacksNotFatalYN[MY_TABLE_Videos$NbIntendedFAttacksNotFatal > 0] <- 1
+  MY_TABLE_Videos$IntendedFAttacksNotFatalYN[MY_TABLE_Videos$NbIntendedFAttacksNotFatal == 0] <- 0
+  MY_TABLE_Videos$IntendedFAttacksNotFatalRate <- MY_TABLE_Videos$NbIntendedFAttacksNotFatal/(MY_TABLE_Videos$TotalWatch/60/60)
+  
+summary(glm(CopulateYN~ IntendedFAttacksNotFatalRate + CourtshipRate
     , family = 'binomial'
-    , data = MY_TABLE_Videos)) # *
+    , data = MY_TABLE_Videos)) 
 
-summary(glm(NbIntendedFAttacks~ CopulateYN
+summary(glm(NbIntendedFAttacksNotFatal~ CopulateYN + TotalCourtDur
             , offset = log(TotalWatch)
             , family = 'poisson'
             , data = MY_TABLE_Videos)) # ***
 
-summary(glm(NbIntendedFAttacks~ TotalCourtDur
+summary(glm(NbIntendedFAttacksNotFatal~ CopulateYN + CourtshipRate
+            , offset = log(TotalWatch)
+            , family = 'poisson'
+            , data = MY_TABLE_Videos)) # ***
+
+summary(glm(NbIntendedFAttacksNotFatal~ TotalCourtDur
             #, offset = log(TotalWatch) # because both the dependent and the independent variable are measured within the same time for each video
             , family = 'poisson'
             , data = MY_TABLE_Videos)) # ***
+
+summary(glm(CopulateYN~ IntendedFAttacksNotFatalYN + CourtshipRate
+            , family = 'binomial'
+            , data = MY_TABLE_Videos)) 
+
 }
 
+### Is cannibalism predicted by attacks ?
+
+summary(glm(CannibalizeYN~ IntendedFAttacksNotFatalRate
+            , family = 'binomial'
+            , data = MY_TABLE_Videos)) 
+
+summary(MY_TABLE_Videos$NbIntendedFAttacksNotFatal)
+
+hist(MY_TABLE_Videos$NbIntendedFAttacksNotFatal)
+
+
+summary(glm(CannibalizeYN~ IntendedFAttacksNotFatalYN
+            , family = 'binomial'
+            , data = MY_TABLE_Videos)) 
 
 
