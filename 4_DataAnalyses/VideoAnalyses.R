@@ -96,19 +96,31 @@ MY_TABLE_Videos_End$MpaintedYN[MY_TABLE_Videos_End$MTrt == "Unmanipulated"] <- "
 table(MY_TABLE_Videos_End$MpaintedYN)
 nrow(MY_TABLE_Videos_End)
 
-modDelayLeaveDish_End <- lm(DelayLeaveDish~ MpaintedYN, data = MY_TABLE_Videos_End)
+shapiro.test(MY_TABLE_Videos_End$DelayLeaveDish)
+shapiro.test(log(MY_TABLE_Videos_End$DelayLeaveDish+1))
+
+modDelayLeaveDish_End <- lm(I(log(DelayLeaveDish+1))~ MpaintedYN, data = MY_TABLE_Videos_End)
 summary(modDelayLeaveDish_End)#
 summary(MY_TABLE_Videos_End$DelayLeaveDish) # they all excited the vials
 
-modDelayCourt_End <- lm(DelayFirstCourt ~ MpaintedYN, data = MY_TABLE_Videos_End)
+shapiro.test(MY_TABLE_Videos_End$DelayFirstCourt)
+shapiro.test(log(MY_TABLE_Videos_End$DelayFirstCourt+1))
+
+modDelayCourt_End <- lm(I(log(DelayFirstCourt+1)) ~ MpaintedYN, data = MY_TABLE_Videos_End)
 summary(modDelayCourt_End) # 
 summary(MY_TABLE_Videos_End$DelayFirstCourt) # one (allgrey) was cannibalized before courting
 
-modTotalCourtDur_End <- lm(TotalCourtDur~ MpaintedYN ,data = MY_TABLE_Videos_End)
+shapiro.test(MY_TABLE_Videos_End$TotalCourtDur)
+hist(MY_TABLE_Videos_End$TotalCourtDur)
+hist(log(MY_TABLE_Videos_End$TotalCourtDur+1))
+shapiro.test(log(MY_TABLE_Videos_End$TotalCourtDur+1))
+
+modTotalCourtDur_End <- lm(log(TotalCourtDur+1)~ MpaintedYN ,data = MY_TABLE_Videos_End)
 summary(modTotalCourtDur_End)#
 summary(MY_TABLE_Videos_End$TotalCourtDur) # one (allgrey) was cannibalized before courting
 
-modNaiveTotalCourtDur_End <- lm(NaiveTotalCourtDur~ MpaintedYN, data = MY_TABLE_Videos_End)
+shapiro.test(log(MY_TABLE_Videos_End$NaiveTotalCourtDur+1))
+modNaiveTotalCourtDur_End <- lm(log(NaiveTotalCourtDur+1)~ MpaintedYN, data = MY_TABLE_Videos_End)
 summary(modNaiveTotalCourtDur_End)#
 summary(MY_TABLE_Videos_End$NaiveTotalCourtDur)# one (allgrey) was cannibalized before courting
 
